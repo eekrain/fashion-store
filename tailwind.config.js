@@ -18,6 +18,7 @@ module.exports = {
         sans: ["Inter", "sans-serif"],
       },
       colors: {
+        "rabbit-red": "#ea2e0e",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

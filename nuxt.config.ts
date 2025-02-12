@@ -8,8 +8,9 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "@nuxt/eslint",
     "@nuxt/fonts",
+    "@nuxt/image",
   ],
-  css: ["~/assets/css/tailwind.css"],
+  css: ["~/components/tailwind.css"],
   postcss: {
     plugins: {
       tailwindcss: {},
