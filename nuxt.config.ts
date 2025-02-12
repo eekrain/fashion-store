@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxt/eslint",
+    "@nuxt/fonts",
   ],
   css: ["~/assets/css/tailwind.css"],
   postcss: {
