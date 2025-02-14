@@ -33,4 +33,12 @@ export default defineNuxtConfig({
   pinia: {
     storesDirs: ["./stores/**"],
   },
+  nitro: {
+    preset: "node-server",
+    minify: true,
+    compressPublicAssets: true,
+  },
+  experimental: {
+    payloadExtraction: false,
+  },
 });

@@ -1,25 +1,27 @@
 # Build stage
-FROM node:20-alpine as builder
+FROM oven/bun:1 as builder
 
 WORKDIR /app
 
-# Increase Node.js memory limit
+# Increase Node.js memory limit and set production mode
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_ENV=production
+ENV NITRO_PRESET=node-server
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json bun.lockb ./
 
 # Install dependencies
-RUN npm ci
+RUN bun install --frozen-lockfile
 
 # Copy the rest of the application
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN bun run build
 
 # Production stage
-FROM node:20-alpine
+FROM oven/bun:1-slim
 
 WORKDIR /app
 
@@ -30,4 +32,4 @@ COPY --from=builder /app/.output /app/.output
 EXPOSE 3000
 
 # Start the application
-CMD ["node", ".output/server/index.mjs"]
+CMD ["bun", "run", ".output/server/index.mjs"]
