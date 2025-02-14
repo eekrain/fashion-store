@@ -1,77 +1,59 @@
 <script setup lang="ts">
 import FilterSidebar from "@/components/Collection/FilterSidebar.vue";
 import { FaFilter } from "vue-icons-plus/fa";
-import { onClickOutside } from "@vueuse/core";
+import { onClickOutside, useDebounceFn } from "@vueuse/core";
 import SortOptions from "@/components/Collection/SortOptions.vue";
 import ProductGrid from "@/components/Product/ProductGrid.vue";
 import { useFilter } from "@/composables/useFilter";
+import { getFilteredProducts } from "~/lib/api";
+import { ref, watch, onMounted } from "vue";
+import type { ProductSlide } from "~/lib/api";
 
 const isFilterSidebarOpen = ref(false);
 const sidebarRef = ref<HTMLElement | null>(null);
 
-// Initialize filter state
 const { params } = useFilter();
+console.log("Initial params:", { ...params.value });
+
+const products = ref<ProductSlide[]>([]);
+const isLoading = ref(true);
+
+// Function to fetch products with debouncing
+const fetchProducts = useDebounceFn(async () => {
+  console.log("Browser: fetchProducts called with params:", {
+    ...params.value,
+  });
+  isLoading.value = true;
+  try {
+    const result = await getFilteredProducts(params.value);
+    console.log("Browser: Got products:", result.length);
+    products.value = result;
+  } catch (error) {
+    console.error("Browser: Error fetching products:", error);
+  } finally {
+    isLoading.value = false;
+  }
+}, 300);
+
+// Watch for changes on the shared params state
+watch(
+  () => ({ ...params.value }), // create a shallow copy to trigger changes
+  (newParams) => {
+    console.log("Browser: Params changed to:", newParams);
+    fetchProducts();
+  },
+  { deep: true, immediate: true },
+);
+
+// Initial fetch
+onMounted(() => {
+  console.log("Browser: Component mounted");
+  fetchProducts();
+});
 
 onClickOutside(sidebarRef, () => {
   isFilterSidebarOpen.value = false;
 });
-
-// Watch filter params to fetch products when they change
-watch(
-  () => ({ ...params }),
-  (newParams) => {
-    // Here you would typically fetch products based on the filter params
-    console.log("Filters changed:", newParams);
-  },
-  { deep: true },
-);
-
-const placeholderProducts = ref([
-  {
-    id: "1",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=1",
-        altText: "Stylish Jacket 1",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=2",
-        altText: "Stylish Jacket 2",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=3",
-        altText: "Stylish Jacket 3",
-      },
-    ],
-  },
-  {
-    id: "4",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=4",
-        altText: "Stylish Jacket 4",
-      },
-    ],
-  },
-]);
 </script>
 
 <template>
@@ -103,8 +85,14 @@ const placeholderProducts = ref([
         <!-- Sort Options  -->
         <SortOptions />
 
+        <!-- Loading state -->
+        <div v-if="isLoading" class="py-4 text-center">Loading...</div>
+
         <!-- Product List -->
-        <ProductGrid :products="placeholderProducts" />
+        <ProductGrid v-else-if="products.length" :products="products" />
+
+        <!-- No results -->
+        <div v-else class="py-4 text-center">No products found</div>
       </div>
     </div>
   </HomeLayout>

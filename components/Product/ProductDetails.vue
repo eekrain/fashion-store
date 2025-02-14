@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import { AiOutlineMinus, AiOutlinePlus } from "vue-icons-plus/ai";
 import ProductThumbnail from "./ProductThumbnail.vue";
 import ProductGrid from "./ProductGrid.vue";
 import { toast } from "vue-sonner";
 import { getProductSlides, type Product } from "~/lib/api";
+import { useCartStore } from "~/stores/cart";
 
 type Props = {
   selectedProduct?: Product;
@@ -31,7 +33,22 @@ const addToCart = () => {
     toast.error("Please select a size and color");
     return;
   }
+
+  const cartStore = useCartStore();
   isAddingToCart.value = true;
+
+  if (props.selectedProduct) {
+    cartStore.addItem({
+      sku: props.selectedProduct.sku,
+      name: props.selectedProduct.name,
+      size: selectedSize.value,
+      color: selectedColor.value,
+      quantity: quantity.value,
+      price: props.selectedProduct.price,
+      image: mainImage.value?.url || "",
+    });
+  }
+
   setTimeout(() => {
     toast.success("Product added to cart");
     isAddingToCart.value = false;

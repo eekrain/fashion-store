@@ -4,6 +4,8 @@ import { IoClose } from "vue-icons-plus/io";
 import CartContent from "./CartContent.vue";
 const isOpen = ref(false);
 
+const cartStore = useCartStore();
+
 const toggleDrawer = () => {
   isOpen.value = !isOpen.value;
 };
@@ -15,7 +17,7 @@ const toggleDrawer = () => {
     <span
       class="absolute -right-3 -top-2 rounded-full bg-rabbit-red px-2 py-0.5 text-xs text-white"
     >
-      4
+      {{ cartStore.items.reduce((acc, item) => acc + item.quantity, 0) }}
     </span>
   </button>
   <div
@@ -39,7 +41,9 @@ const toggleDrawer = () => {
     </div>
     <!-- Checkout button fixed at bottom -->
     <div class="sticky bottom-0 bg-white p-4">
-      <Button class="w-full" size="lg">Checkout</Button>
+      <NuxtLink to="/checkout" as-child>
+        <Button class="w-full" size="lg">Checkout</Button>
+      </NuxtLink>
       <p class="text-center text-sm tracking-tight text-gray-500">
         Shipping, taxes, and discounts calculated at checkout.
       </p>

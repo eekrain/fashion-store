@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 
 interface CartItem {
-  sku: number;
+  sku: string;
   name: string;
   size: string;
   color: string;
@@ -28,14 +28,14 @@ export const useCartStore = defineStore("cart", {
       }
     },
 
-    removeItem(itemsku: number) {
+    removeItem(itemsku: string) {
       const index = this.items.findIndex((item) => item.sku === itemsku);
       if (index > -1) {
         this.items.splice(index, 1);
       }
     },
 
-    updateQuantity(itemsku: number, quantity: number) {
+    updateQuantity(itemsku: string, quantity: number) {
       const item = this.items.find((item) => item.sku === itemsku);
       if (item) {
         item.quantity = quantity;

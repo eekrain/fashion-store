@@ -18,9 +18,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "vue-sonner";
+import { ref } from "vue";
+import { useCartStore } from "@/stores/cart";
 
 const formSchema = toTypedSchema(checkoutSchema);
 const form = useForm({
@@ -38,11 +39,17 @@ const form = useForm({
 });
 const data = ref<any>(null);
 
+const cartStore = useCartStore();
+
 const onSubmit = form.handleSubmit((values) => {
   console.log(values);
 
   setTimeout(() => {
-    data.value = values;
+    data.value = {
+      payment: values,
+      items: cartStore.items,
+    };
+    cartStore.clearCart();
     toast.success("Checkout successful");
   }, 1000);
 });
@@ -175,36 +182,51 @@ const onSubmit = form.handleSubmit((values) => {
       <div class="space-y-6 rounded-lg bg-gray-50 p-6">
         <h2 class="text-2xl uppercase">Order Summary</h2>
 
-        <!-- Product Item -->
-        <div class="flex items-center gap-4 border-b pb-6">
-          <img
-            src="https://picsum.photos/500/500?random=1"
-            alt="Classic Oxford Button-Down Shirt"
-            class="h-20 w-20 rounded-md object-cover"
-          />
-          <div class="flex-1">
-            <h3 class="font-medium">Classic Oxford Button-Down Shirt</h3>
-            <p class="text-sm text-gray-600">Size: M</p>
-            <p class="text-sm text-gray-600">Color: Red</p>
+        <!-- Check if there are items in the cart -->
+        <template v-if="cartStore.items.length">
+          <!-- Render each cart item -->
+          <div
+            v-for="(item, idx) in cartStore.items"
+            :key="`${item.sku}-${item.size}-${item.color}`"
+            class="flex items-center gap-4 border-b pb-6"
+          >
+            <img
+              :src="item.image"
+              :alt="item.name"
+              class="h-20 w-20 rounded-md object-cover"
+            />
+            <div class="flex-1">
+              <h3 class="font-medium">{{ item.name }}</h3>
+              <p class="text-sm text-gray-600">Size: {{ item.size }}</p>
+              <p class="text-sm text-gray-600">Color: {{ item.color }}</p>
+              <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+            </div>
+            <p class="font-medium">
+              $ {{ (item.price * item.quantity).toFixed(2) }}
+            </p>
           </div>
-          <p class="font-medium">€39.99</p>
-        </div>
 
-        <!-- Summary Details -->
-        <div class="space-y-4">
-          <div class="flex justify-between">
-            <p>Subtotal</p>
-            <p class="font-medium">€39.99</p>
+          <!-- Summary Totals -->
+          <div class="space-y-4">
+            <div class="flex justify-between">
+              <p>Total Items</p>
+              <p class="font-medium">{{ cartStore.totalItems }}</p>
+            </div>
+            <div class="flex justify-between">
+              <p>Subtotal</p>
+              <p class="font-medium">$ {{ cartStore.totalPrice.toFixed(2) }}</p>
+            </div>
+            <!-- Assuming shipping is free -->
+            <div class="flex justify-between border-t pt-4">
+              <p class="font-medium">Total</p>
+              <p class="font-medium">$ {{ cartStore.totalPrice.toFixed(2) }}</p>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <p>Shipping</p>
-            <p class="font-medium">FREE</p>
-          </div>
-          <div class="flex justify-between border-t pt-4">
-            <p class="font-medium">Total</p>
-            <p class="font-medium">€39.99</p>
-          </div>
-        </div>
+        </template>
+        <!-- Fallback when the cart is empty -->
+        <template v-else>
+          <p>Your cart is empty.</p>
+        </template>
       </div>
     </div>
 

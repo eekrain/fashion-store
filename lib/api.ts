@@ -1038,3 +1038,16 @@ export const getProductsByCategory = async (category: string) => {
     }, 1000);
   });
 };
+
+export const getFilteredProducts = async (
+  filters?: Partial<FilterParams>,
+): Promise<ProductSlide[]> => {
+  console.log("API received filters:", filters);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Just return random products for now
+      const shuffledProducts = products.sort(() => Math.random() - 0.5);
+      resolve(shuffledProducts.slice(0, 10));
+    }, 1000);
+  });
+};
