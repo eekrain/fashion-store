@@ -35,7 +35,7 @@ const onSubmit = form.handleSubmit((values) => {
       toast.error(res.error.message || "Something went wrong");
     } else {
       toast.success("Login successful");
-      router.push("/");
+      router.push("/profile");
     }
   });
 });

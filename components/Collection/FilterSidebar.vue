@@ -124,14 +124,13 @@ const {
     <!-- Price range filter -->
     <div class="mb-6">
       <h4 class="mb-2 text-sm font-medium text-gray-800">Price</h4>
-      <div class="flex items-center space-x-2">
+      <div class="flex flex-col gap-2">
         <Input
           :model-value="params.minPrice"
           placeholder="Min"
           @update:model-value="(value) => (params.minPrice = value.toString())"
         />
-      </div>
-      <div class="flex items-center space-x-2">
+
         <Input
           :model-value="params.maxPrice"
           placeholder="Max"

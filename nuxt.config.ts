@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/fonts",
     "@nuxt/image",
+    "@pinia/nuxt",
+    "@pinia-plugin-persistedstate/nuxt",
   ],
   css: ["~/components/tailwind.css"],
   postcss: {
@@ -27,5 +29,8 @@ export default defineNuxtConfig({
      * @default "./components/ui"
      */
     componentDir: "./components/ui",
+  },
+  pinia: {
+    storesDirs: ["./stores/**"],
   },
 });

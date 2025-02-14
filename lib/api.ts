@@ -1,6 +1,4 @@
-// product.js:
-
-const products = [
+export const products = [
   {
     name: "Classic Oxford Button-Down Shirt",
     description:
@@ -987,4 +985,45 @@ const products = [
   },
 ];
 
-module.exports = products;
+export const getProductBySku = async (sku: string) =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(products.find((product) => product.sku === sku));
+    }, 1000);
+  });
+
+export type ProductSlide = {
+  sku: string;
+  name: string;
+  price: number;
+  images: {
+    url: string;
+    altText: string;
+  }[];
+};
+export const getProductSlides = async (): Promise<ProductSlide[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // randomize the products, and return 5-10 products
+      const shuffledProducts = products.sort(() => Math.random() - 0.5);
+      const slides: ProductSlide[] = shuffledProducts
+        .slice(0, Math.floor(Math.random() * 6) + 5)
+        .map((product) => ({
+          sku: product.sku,
+          name: product.name,
+          price: product.price,
+          images: product.images,
+        }));
+
+      resolve(slides);
+    }, 1000);
+  });
+};
+
+export const getProductsByCategory = async (category: string) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(products.filter((product) => product.category === category));
+    }, 1000);
+  });
+};

@@ -1,49 +1,11 @@
 <script setup lang="ts">
 import { Carousel, Slide, Navigation } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css"; // Make sure this is imported
+import { getProductSlides } from "~/lib/api";
 
-const newArrivals = ref([
-  {
-    id: 1,
-    name: "Stylish Jacket",
-    price: 120.99,
-    images: [
-      { url: "https://picsum.photos/500/500?random=39", alt: "Stylish Jacket" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Stylish Jacket",
-    price: 120.99,
-    images: [
-      { url: "https://picsum.photos/500/500?random=42", alt: "Stylish Jacket" },
-    ],
-  },
-  {
-    id: 3,
-    name: "Stylish Jacket",
-    price: 120.99,
-    images: [
-      { url: "https://picsum.photos/500/500?random=45", alt: "Stylish Jacket" },
-    ],
-  },
-  {
-    id: 4,
-    name: "Stylish Jacket",
-    price: 120.99,
-    images: [
-      { url: "https://picsum.photos/500/500?random=48", alt: "Stylish Jacket" },
-    ],
-  },
-  {
-    id: 5,
-    name: "Stylish Jacket",
-    price: 120.99,
-    images: [
-      { url: "https://picsum.photos/500/500?random=51", alt: "Stylish Jacket" },
-    ],
-  },
-]);
+const { data: newArrivals } = await useAsyncData("new-arrivals", () =>
+  getProductSlides(),
+);
 </script>
 
 <template>
@@ -78,13 +40,13 @@ const newArrivals = ref([
           <template #addons>
             <Navigation />
           </template>
-          <Slide v-for="item in newArrivals" :key="item.id">
-            <NuxtLink :to="`/product/${item.id}`" as-child>
+          <Slide v-for="item in newArrivals || []" :key="item.sku">
+            <NuxtLink :to="`/product/${item.sku}`" as-child>
               <div class="carousel__item mx-2">
                 <div class="relative aspect-[4/3] overflow-hidden rounded-lg">
                   <img
                     :src="item.images[0].url"
-                    :alt="item.images[0].alt"
+                    :alt="item.images[0].altText"
                     class="h-full w-full object-cover"
                   />
                   <div class="absolute bottom-4 left-4 text-white">
