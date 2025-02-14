@@ -17,12 +17,19 @@ RUN python3 --version
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Copy only package files first (for better caching)
-COPY package.json ./
-COPY bun.lock ./
+# Copy package files first
+COPY package.json bun.lock ./
 
-# Install dependencies
+# Create node_modules cache layer
+FROM oven/bun:alpine AS deps
+WORKDIR /app
+COPY package.json bun.lock ./
 RUN bun install
+
+# Back to builder stage
+FROM builder AS builder-with-deps
+# Copy node_modules from deps stage
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy the rest of the application
 COPY . .
@@ -36,7 +43,7 @@ FROM oven/bun:alpine
 WORKDIR /app
 
 # Copy built assets from builder
-COPY --from=builder /app/.output /app/.output
+COPY --from=builder-with-deps /app/.output /app/.output
 
 EXPOSE 3000
 
