@@ -3,6 +3,9 @@ FROM node:20-alpine as builder
 
 WORKDIR /app
 
+# Increase Node.js memory limit
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Copy package files
 COPY package.json package-lock.json ./
 
