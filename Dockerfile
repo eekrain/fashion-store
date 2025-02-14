@@ -9,7 +9,7 @@ ENV NODE_ENV=production
 ENV NITRO_PRESET=node-server
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
