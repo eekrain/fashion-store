@@ -3,6 +3,12 @@ FROM oven/bun:1 as builder
 
 WORKDIR /app
 
+# Install Python and build dependencies for libsql
+RUN apt-get update && apt-get install -y \
+    python3 \
+    build-essential &&
+    rm -rf /var/lib/apt/lists/*
+
 # Increase Node.js memory limit and set production mode
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV NODE_ENV=production
