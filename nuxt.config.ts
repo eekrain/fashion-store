@@ -41,4 +41,16 @@ export default defineNuxtConfig({
   experimental: {
     payloadExtraction: false,
   },
+  routeRules: {
+    "/**": { ssr: true },
+  },
+  app: {
+    head: {
+      title: "Your App Name",
+      meta: [
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+      ],
+    },
+  },
 });
