@@ -15,6 +15,7 @@ RUN python3 --version
 
 # Set environment variables
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copy only package files first (for better caching)
 COPY package.json ./
@@ -26,8 +27,8 @@ RUN bun install
 # Copy the rest of the application
 COPY . .
 
-# Build the application
-RUN bun run build
+# Build the application with increased memory limit
+RUN --memory=4g bun run build
 
 # Production stage
 FROM oven/bun:alpine
