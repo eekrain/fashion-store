@@ -1,14 +1,8 @@
 <script setup lang="ts">
+import type { ProductSlide } from "~/lib/api";
+
 interface Props {
-  products: {
-    id: string;
-    name: string;
-    price: number;
-    images: {
-      url: string;
-      altText: string;
-    }[];
-  }[];
+  products: ProductSlide[];
 }
 
 defineProps<Props>();
@@ -16,8 +10,8 @@ defineProps<Props>();
 
 <template>
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-    <div v-for="product in products" :key="product.id">
-      <NuxtLink :to="`/product/${product.id}`" class="block">
+    <div v-for="product in products" :key="product.sku">
+      <NuxtLink :to="`/product/${product.sku}`" class="block">
         <div class="rounded-lg bg-white p-4">
           <div class="mb-4 h-96 w-full">
             <NuxtImg

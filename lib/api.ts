@@ -984,11 +984,16 @@ export const products = [
     numReviews: 22,
   },
 ];
+export type Product = (typeof products)[number];
 
-export const getProductBySku = async (sku: string) =>
-  new Promise((resolve) => {
+export const getProductBySku = async (sku: string): Promise<Product> =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(products.find((product) => product.sku === sku));
+      const product = products.find((product) => product.sku === sku);
+      if (!product) {
+        reject(new Error(`Product with SKU ${sku} not found`));
+      }
+      resolve(product!);
     }, 1000);
   });
 
@@ -1001,7 +1006,9 @@ export type ProductSlide = {
     altText: string;
   }[];
 };
-export const getProductSlides = async (): Promise<ProductSlide[]> => {
+export const getProductSlides = async (
+  limit?: number,
+): Promise<ProductSlide[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       // randomize the products, and return 5-10 products
@@ -1014,6 +1021,10 @@ export const getProductSlides = async (): Promise<ProductSlide[]> => {
           price: product.price,
           images: product.images,
         }));
+
+      if (limit) {
+        return resolve(slides.slice(0, limit));
+      }
 
       resolve(slides);
     }, 1000);

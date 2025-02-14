@@ -3,8 +3,24 @@ import { AiOutlineMinus, AiOutlinePlus } from "vue-icons-plus/ai";
 import ProductThumbnail from "./ProductThumbnail.vue";
 import ProductGrid from "./ProductGrid.vue";
 import { toast } from "vue-sonner";
+import { getProductSlides, type Product } from "~/lib/api";
 
-const mainImage = ref<{ url: string; altText: string } | null>(null);
+type Props = {
+  selectedProduct?: Product;
+};
+
+const props = defineProps<Props>();
+const mainImage = ref(props.selectedProduct?.images?.[0] || null);
+
+watch(
+  () => props.selectedProduct,
+  (newProduct) => {
+    if (newProduct?.images?.length) {
+      mainImage.value = newProduct.images[0];
+    }
+  },
+);
+
 const selectedSize = ref<string | null>(null);
 const selectedColor = ref<string | null>(null);
 const quantity = ref(1);
@@ -22,86 +38,19 @@ const addToCart = () => {
   }, 2000);
 };
 
-const selectedProduct = ref({
-  name: "Stylish Jacket",
-  price: 120,
-  originalPrice: 150,
-  description: "A stylish jacket for the winter season",
-  brand: "FashionHub",
-  material: "Cotton",
-  sizes: ["S", "M", "L"],
-  colors: ["Red", "Blue", "Green"],
-  images: [
-    {
-      url: "https://picsum.photos/500/500?random=1",
-      altText: "Stylish Jacket 1",
-    },
-    {
-      url: "https://picsum.photos/500/500?random=2",
-      altText: "Stylish Jacket 2",
-    },
-  ],
-});
-
-// set mainImage to the first image in the images array
-mainImage.value = selectedProduct.value.images[0];
-
-const similarProduct = [
-  {
-    id: "1",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=1",
-        altText: "Stylish Jacket 1",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=2",
-        altText: "Stylish Jacket 2",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=3",
-        altText: "Stylish Jacket 3",
-      },
-    ],
-  },
-  {
-    id: "4",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=4",
-        altText: "Stylish Jacket 4",
-      },
-    ],
-  },
-];
+const { data: similarProduct } = useAsyncData("similar-product", () =>
+  getProductSlides(4),
+);
 </script>
 
 <template>
-  <div class="p-6">
+  <div v-if="props.selectedProduct" class="p-6">
     <div class="mx-auto max-w-6xl rounded-lg bg-white p-8">
       <div class="flex flex-col md:flex-row">
         <!-- Left thumbnail -->
         <div class="mr-6 hidden flex-col gap-4 md:flex">
           <ProductThumbnail
-            v-for="image in selectedProduct.images"
+            v-for="image in props.selectedProduct.images"
             :key="image.url"
             :image="image"
             :selected="mainImage?.url === image.url"
@@ -123,7 +72,7 @@ const similarProduct = [
         <!-- Mobile thumbnail -->
         <div class="mb-4 flex gap-4 overscroll-x-contain md:hidden">
           <ProductThumbnail
-            v-for="image in selectedProduct.images"
+            v-for="image in props.selectedProduct.images"
             :key="image.url"
             :selected="mainImage?.url === image.url"
             :image="image"
@@ -134,27 +83,29 @@ const similarProduct = [
         <!-- Right side -->
         <div class="md:ml-10 md:w-1/2">
           <h1 class="mb-2 text-2xl font-bold md:text-3xl">
-            {{ selectedProduct.name }}
+            {{ props.selectedProduct.name }}
           </h1>
 
           <p
-            v-if="selectedProduct.originalPrice"
+            v-if="props.selectedProduct.discountPrice"
             class="mb-1 text-lg text-gray-600 line-through"
           >
-            {{ selectedProduct.originalPrice }}
+            {{ props.selectedProduct.discountPrice }}
           </p>
 
-          <p class="mb-1 text-lg font-bold">$ {{ selectedProduct.price }}</p>
+          <p class="mb-1 text-lg font-bold">
+            $ {{ props.selectedProduct.price }}
+          </p>
 
           <p class="mb-4 text-gray-600">
-            {{ selectedProduct.description }}
+            {{ props.selectedProduct.description }}
           </p>
 
           <div class="mb-4">
             <p class="text-gray-700">Color:</p>
             <div class="mt-2 flex gap-2">
               <button
-                v-for="color in selectedProduct.colors"
+                v-for="color in props.selectedProduct.colors"
                 :key="color"
                 class="size-8 overflow-hidden rounded-full border-2"
                 :class="{
@@ -175,7 +126,7 @@ const similarProduct = [
             <p class="text-gray-700">Size:</p>
             <div class="mt-2 flex gap-2">
               <Button
-                v-for="size in selectedProduct.sizes"
+                v-for="size in props.selectedProduct.sizes"
                 :key="size"
                 :variant="selectedSize === size ? 'default' : 'outline'"
                 @click="selectedSize = size"
@@ -215,13 +166,13 @@ const similarProduct = [
                 <tr>
                   <td class="py-1">Brand</td>
                   <td class="py-1">
-                    {{ selectedProduct.brand }}
+                    {{ props.selectedProduct.brand }}
                   </td>
                 </tr>
                 <tr>
                   <td class="py-1">Material</td>
                   <td class="py-1">
-                    {{ selectedProduct.material }}
+                    {{ props.selectedProduct.material }}
                   </td>
                 </tr>
               </tbody>
@@ -233,7 +184,7 @@ const similarProduct = [
       <!-- you may also like -->
       <div class="mt-20">
         <h2 class="mb-4 text-center text-2xl font-medium">You May Also Like</h2>
-        <ProductGrid :products="similarProduct" />
+        <ProductGrid v-if="similarProduct" :products="similarProduct" />
       </div>
     </div>
   </div>
