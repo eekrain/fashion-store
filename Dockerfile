@@ -27,8 +27,8 @@ RUN bun install
 # Copy the rest of the application
 COPY . .
 
-# Build the application with increased memory limit
-RUN --memory=4g bun run build
+# Build the application
+RUN bun run build
 
 # Production stage
 FROM oven/bun:alpine
