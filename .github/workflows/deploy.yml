@@ -3,7 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main # or your default branch
+      - main
 
 jobs:
   deploy:
@@ -12,26 +12,53 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Add SSH key
+      - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          echo "${{ secrets.VPS_HOST }} $(ssh-keyscan ${{ secrets.VPS_HOST }} 2>/dev/null)" >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Create .env file on VPS
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
+      - name: Create app directory
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cat > /path/to/your/app/.env << 'EOL'
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+            mkdir -p /root/app
+          '
+
+      - name: Copy files to VPS
+        run: |
+          rsync -avz --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.env' \
+            --exclude '.nuxt' \
+            --exclude '.output' \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/root/app/
+
+      - name: Create env file
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cat > /root/app/.env << 'EOL'
           BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
           TURSO_DATABASE_URL=${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN=${{ secrets.TURSO_AUTH_TOKEN }}
           NUXT_PUBLIC_SITE_URL=${{ secrets.NUXT_PUBLIC_SITE_URL }}
+          NODE_ENV=production
           EOL"
 
-      - name: Deploy to VPS
+      - name: Deploy with Docker
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /path/to/your/app && \
-          git pull origin main && \
-          docker compose down && \
-          docker compose build --no-cache && \
-          docker compose up -d"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /root/app && \
+            docker compose pull && \
+            docker compose down --remove-orphans && \
+            docker compose build --no-cache && \
+            docker compose up -d && \
+            docker system prune -af"
+
+      - name: Health check
+        run: |
+          echo "Waiting for application to start..."
+          sleep 30
+          curl --fail http://${{ secrets.VPS_HOST }}/api/health || exit 1
