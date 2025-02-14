@@ -3,8 +3,12 @@ FROM oven/bun:alpine as builder
 
 WORKDIR /app
 
-# Install only Python first
-RUN apk add --no-cache python3
+# Install Python and build tools
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    gcc
 
 # Verify Python installation
 RUN python3 --version
