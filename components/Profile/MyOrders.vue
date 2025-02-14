@@ -50,8 +50,16 @@ defineProps<{
             <td class="px-8 py-2 sm:py-3">{{ order.shippingAddress }}</td>
             <td class="px-8 py-2 sm:py-3">{{ order.orderItems.length }}</td>
             <td class="px-8 py-2 sm:py-3">${{ order.totalPrice }}</td>
-            <td class="px-8 py-2 sm:py-3">
-              {{ order.isPaid ? "Paid" : "Pending" }}
+            <td class="px-8 py-2 text-center sm:py-3">
+              <span
+                class="rounded-full px-2 py-1 text-xs text-white"
+                :class="{
+                  'bg-green-500': order.isPaid,
+                  'bg-red-500': !order.isPaid,
+                }"
+              >
+                {{ order.isPaid ? "Paid" : "Pending" }}
+              </span>
             </td>
           </tr>
         </tbody>

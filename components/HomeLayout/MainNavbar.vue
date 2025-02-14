@@ -18,22 +18,22 @@ import MobileNavigation from "./MobileNavigation.vue";
     <!-- Center Nav -->
     <div class="hidden space-x-6 md:flex">
       <NuxtLink
-        to="#"
+        to="/collection/all"
         class="text-sm font-medium uppercase text-gray-700 hover:text-black"
         >Men</NuxtLink
       >
       <NuxtLink
-        to="#"
+        to="/collection/women"
         class="text-sm font-medium uppercase text-gray-700 hover:text-black"
         >Women</NuxtLink
       >
       <NuxtLink
-        to="#"
+        to="/collection/top-wear"
         class="text-sm font-medium uppercase text-gray-700 hover:text-black"
         >Top Wear</NuxtLink
       >
       <NuxtLink
-        to="#"
+        to="/collection/bottom-wear"
         class="text-sm font-medium uppercase text-gray-700 hover:text-black"
         >Bottom Wear</NuxtLink
       >

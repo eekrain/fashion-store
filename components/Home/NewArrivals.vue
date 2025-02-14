@@ -79,19 +79,21 @@ const newArrivals = ref([
             <Navigation />
           </template>
           <Slide v-for="item in newArrivals" :key="item.id">
-            <div class="carousel__item mx-2">
-              <div class="relative aspect-[4/3] overflow-hidden rounded-lg">
-                <img
-                  :src="item.images[0].url"
-                  :alt="item.images[0].alt"
-                  class="h-full w-full object-cover"
-                />
-                <div class="absolute bottom-4 left-4 text-white">
-                  <h3 class="text-xl font-medium">{{ item.name }}</h3>
-                  <p class="mt-1">${{ item.price }}</p>
+            <NuxtLink :to="`/product/${item.id}`" as-child>
+              <div class="carousel__item mx-2">
+                <div class="relative aspect-[4/3] overflow-hidden rounded-lg">
+                  <img
+                    :src="item.images[0].url"
+                    :alt="item.images[0].alt"
+                    class="h-full w-full object-cover"
+                  />
+                  <div class="absolute bottom-4 left-4 text-white">
+                    <h3 class="text-xl font-medium">{{ item.name }}</h3>
+                    <p class="mt-1">${{ item.price }}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </NuxtLink>
           </Slide>
         </Carousel>
       </div>
