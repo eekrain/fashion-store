@@ -20,9 +20,15 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 # Copy package files first
 COPY package.json bun.lock ./
 
-# Create node_modules cache layer
+# deps stage - THIS NEEDS PYTHON TOO
 FROM oven/bun:alpine AS deps
 WORKDIR /app
+# Install Python and build tools in deps stage too
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    gcc
 COPY package.json bun.lock ./
 RUN bun install
 
