@@ -3,13 +3,16 @@ FROM oven/bun:1 as builder
 
 WORKDIR /app
 
-# Install Python and build dependencies for libsql
-RUN apt-get update && apt-get install -y \
-    python3 \
-    build-essential &&
+# Install Python and build tools
+RUN apt-get update &&
+    apt-get install -y python3 &&
+    apt-get clean &&
     rm -rf /var/lib/apt/lists/*
 
-# Increase Node.js memory limit and set production mode
+# Verify Python installation
+RUN python3 --version
+
+# Set environment variables
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV NODE_ENV=production
 ENV NITRO_PRESET=node-server
@@ -34,8 +37,6 @@ WORKDIR /app
 # Copy built assets from builder
 COPY --from=builder /app/.output /app/.output
 
-# Expose the port the app runs on
 EXPOSE 3000
 
-# Start the application
 CMD ["bun", "run", ".output/server/index.mjs"]
